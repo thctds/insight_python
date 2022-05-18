@@ -5,9 +5,14 @@ import json
 import shutil
 
 fieldnames = ["itr", "af3a", "af3hb", "af3t", "af4a", "af4hb", "af4t", "pxa", "pxhb", "pxt", "af3lb", "af3g", "af4lb", "af4g", "pxlb", "pxg", "pzt", "pza", "pzlb", "pzhb", "pzg", "t8t", "t8a", "t8lb", "t8hb", "t8g"]
+alphaFields = ["itr", "af3a", "af4a", "pxa", "t8a", "pza"]
+lowBetaFields = ["itr", "af3lb", "af4lb", "pxlb", "t8lb", "pzlb"]
+highBetaFields = ["itr", "af3hb", "af4hb", "pxhb", "t8hb", "pzhb"]
+gammaFields = ["itr", "af3g", "af4g", "pxg", "t8g", "pzg"]
+thetaFields = ["itr", "af3t", "af4t", "pxt", "t8t", "pzt"]
 filename = input("Digite o nome do arquivo de saída: ")
 print("O nome do arquivo de saída será " + filename)
-#f = open("async/leituras/" + filename + ".csv", "x")
+f = open("leituras/" + filename + ".csv", "x")
 
 
 with open('data.csv', 'w') as csv_file:
@@ -39,9 +44,10 @@ async def do_stuff(cortex):
         await cortex.create_record(title="test record 1")
         print("** SUBSCRIBE POW & MET **")
         await cortex.subscribe(['pow'])
-        while cortex.packet_count < 1200: #100 packets = 12s
+        while cortex.packet_count < 1200: #8 packets/s
+            print(cortex.packet_count)
             waves = json.loads(await cortex.get_data())
-            print(waves['pow'])
+            #print(waves['pow'])
             af3a = (waves['pow'][1])
             af3hb = (waves['pow'][3])
             af3t = (waves['pow'][0])
@@ -104,7 +110,7 @@ async def do_stuff(cortex):
                 }
 
                 csv_writer.writerow(info)
-                print(i, af3a, af3hb, af3t, af4a, af4hb, af4t, pxa, pxhb, pxt)
+                #print(i, af3a, af3hb, af3t, af4a, af4hb, af4t, pxa, pxhb, pxt)
             #time.sleep(1)
 
 
@@ -116,9 +122,9 @@ async def do_stuff(cortex):
 
 
 def test():
-    cortex = Cortex('./cortex_creds')
+    cortex = Cortex('../cortex_creds')
     asyncio.run(do_stuff(cortex))
-    shutil.copyfile('data.csv',"async/leituras/" + filename + ".csv")
+    shutil.copyfile('data.csv',"../async/leituras/" + filename + ".csv")
     cortex.close()
 
 
